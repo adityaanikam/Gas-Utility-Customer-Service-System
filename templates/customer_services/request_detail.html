@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Service Request Details - Gas Utility{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="card-title mb-0">Service Request Details</h2>
+                    <span class="badge {% if service_request.status == 'pending' %}bg-warning
+                                    {% elif service_request.status == 'in_progress' %}bg-info
+                                    {% elif service_request.status == 'resolved' %}bg-success
+                                    {% else %}bg-danger{% endif %}">
+                        {{ service_request.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Request Type</dt>
+                    <dd class="col-sm-9">{{ service_request.get_request_type_display }}</dd>
+
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">{{ service_request.description }}</dd>
+
+                    <dt class="col-sm-3">Created</dt>
+                    <dd class="col-sm-9">{{ service_request.created_at|date:"M d, Y H:i" }}</dd>
+
+                    <dt class="col-sm-3">Last Updated</dt>
+                    <dd class="col-sm-9">{{ service_request.updated_at|date:"M d, Y H:i" }}</dd>
+
+                    {% if service_request.resolved_at %}
+                        <dt class="col-sm-3">Resolved</dt>
+                        <dd class="col-sm-9">{{ service_request.resolved_at|date:"M d, Y H:i" }}</dd>
+                    {% endif %}
+
+                    {% if service_request.assigned_to %}
+                        <dt class="col-sm-3">Assigned To</dt>
+                        <dd class="col-sm-9">{{ service_request.assigned_to.get_full_name|default:service_request.assigned_to.username }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        {% if attachments %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Attachments</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for attachment in attachments %}
+                            <a href="{{ attachment.file.url }}" class="list-group-item list-group-item-action" target="_blank">
+                                <i class="bi bi-paperclip"></i> {{ attachment.file.name }}
+                                {% if attachment.description %}
+                                    <small class="text-muted"> - {{ attachment.description }}</small>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Notes</h3>
+            </div>
+            <div class="card-body">
+                {% if notes %}
+                    <div class="list-group mb-4">
+                        {% for note in notes %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ note.author.get_full_name|default:note.author.username }}</h6>
+                                    <small class="text-muted">{{ note.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <p class="mb-1">{{ note.content }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_note" value="1">
+                    {{ note_form|crispy }}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Note
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Add Attachment</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_attachment" value="1">
+                    {{ attachment_form|crispy }}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if user.is_staff %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Update Request</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'customer_services:update_request' service_request.pk %}">
+                        {% csrf_token %}
+                        {{ update_form|crispy }}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 
