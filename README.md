@@ -94,6 +94,13 @@ gas_utility/
 └── media/
     └── request_attachments/
 ```
+## Outputs
+![Screenshot 2025-05-14 232138](https://github.com/user-attachments/assets/b06e8fd1-2056-4717-b6a7-976e2e7c5d28)
+
+![Screenshot 2025-05-14 232201](https://github.com/user-attachments/assets/a300a7f6-d14c-4bb7-988c-67582330b2c8)
+
+![Screenshot 2025-05-14 232216](https://github.com/user-attachments/assets/5e97312b-c510-43ab-b1d5-1d52b956a79a)
+
 
 ## Contributing
 
